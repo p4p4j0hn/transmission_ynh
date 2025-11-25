@@ -12,12 +12,12 @@ rpcpassword=$(ynh_string_random)
 #=================================================
 # CREATE DATA DIRECTORY PERMISSIONS
 #=================================================
-ynh_script_progression --message="Set data directory permissions..."
+#ynh_script_progression --message="Set data directory permissions..."
 
-chmod -R 775 $data_dir
-chmod -R 775 $data_dir/watched
-chown -R debian-transmission:www-data "$data_dir"
-chown -R debian-transmission: "$data_dir"/{progress,watched}
+# chmod -R 775 $data_dir
+# chmod -R 775 $data_dir/watched
+# chown -R debian-transmission:www-data "$data_dir"
+# chown -R debian-transmission: "$data_dir"/{progress,watched}
 
 #=================================================
 # NGINX CONFIGURATION
@@ -35,11 +35,10 @@ ynh_script_progression --message="Adding a configuration file..." --weight=2
 # Transmission has to be stopped before modifying its config
 ynh_systemd_action --service_name=transmission-daemon --action=stop
 
-if [ "$path" != "/" ]
-then
-	path_less="$path/"
+if [ "$path" != "/" ]; then
+    path_less="$path/"
 else
-	path_less="$path"
+    path_less="$path"
 fi
 
 ynh_add_config --template="../conf/settings.json" --destination="$SETTINGS_FILE"
@@ -47,31 +46,30 @@ ynh_add_config --template="../conf/settings.json" --destination="$SETTINGS_FILE"
 chmod 400 "$SETTINGS_FILE"
 chown debian-transmission:debian-transmission "$SETTINGS_FILE"
 
-if [ -e /proc/sys/net/core/rmem_max ]
-then
-	ynh_add_config --template="../conf/90-transmission.conf" --destination="/etc/sysctl.d/90-transmission.conf"
+if [ -e /proc/sys/net/core/rmem_max ]; then
+    ynh_add_config --template="../conf/90-transmission.conf" --destination="/etc/sysctl.d/90-transmission.conf"
 
-	chmod 400 "/etc/sysctl.d/90-transmission.conf"
-	chown debian-transmission:debian-transmission "/etc/sysctl.d/90-transmission.conf"
+    chmod 400 "/etc/sysctl.d/90-transmission.conf"
+    chown debian-transmission:debian-transmission "/etc/sysctl.d/90-transmission.conf"
 
-	sysctl --load=/etc/sysctl.d/90-transmission.conf
+    sysctl --load=/etc/sysctl.d/90-transmission.conf
 fi
 
 #=================================================
 # YUNOHOST MULTIMEDIA INTEGRATION
 #=================================================
-ynh_script_progression --message="Adding multimedia directories..." --weight=4
-
-ynh_multimedia_build_main_dir
-
+# ynh_script_progression --message="Adding multimedia directories..." --weight=4
+#
+# ynh_multimedia_build_main_dir
+#
 # Set rights on transmission directory (parent need to be readable by other, and progress need to be writable by multimedia. Because files will move)
-ynh_multimedia_addfolder --source_dir="$data_dir" --dest_dir="share/Torrents"
+# ynh_multimedia_addfolder --source_dir="$data_dir" --dest_dir="share/Torrents"
 
 # And share completed directory
-ynh_multimedia_addfolder --source_dir="$data_dir/completed" --dest_dir="share/Torrents"
+# ynh_multimedia_addfolder --source_dir="$data_dir/completed" --dest_dir="share/Torrents"
 
 # Share also watched directory, to allow to use it easily
-ynh_multimedia_addfolder --source_dir="$data_dir/watched" --dest_dir="share/Torrent to download"
+# ynh_multimedia_addfolder --source_dir="$data_dir/watched" --dest_dir="share/Torrent to download"
 
 #=================================================
 # PATCH SOURCE TO ADD A DOWNLOAD BUTTON
